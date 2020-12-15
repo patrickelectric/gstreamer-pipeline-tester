@@ -40,20 +40,62 @@ ApplicationWindow {
         }
     }
 
-    Image {
-        id: pipelineBlock
+    Item {
+        id: imageFrame
         width: parent.width
         height: parent.height / 5
-        //sourceSize.width: height
-        //sourceSize.height: width
-        fillMode: Image.PreserveAspectFit
-        source: "file:///tmp/gstreamer-pipeline-test/0.00.00.070893169-gst.play.dot.svg"
+        Image {
+            id: pipelineBlock
+            fillMode: Image.PreserveAspectFit
+            anchors.centerIn: parent
+            antialiasing: true
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                print(`touch.`)
-                pipelineBlock.state = "popup"
+            PinchArea {
+                anchors.fill: parent
+                pinch.target: imageFrame
+                pinch.minimumRotation: -360
+                pinch.maximumRotation: 360
+                pinch.minimumScale: 0.1
+                pinch.maximumScale: 10
+                pinch.dragAxis: Pinch.XAndYAxis
+                onPinchStarted: setFrameColor();
+                property real zRestore: 0
+                onSmartZoom: {
+                    if (pinch.scale > 0) {
+                        imageFrame.rotation = 0;
+                        imageFrame.scale = Math.min(imageFrame.parent.width, imageFrame.parent.height) / Math.max(image.sourceSize.width, image.sourceSize.height) * 0.85
+                        imageFrame.x = flick.contentX + (flick.width - imageFrame.width) / 2
+                        imageFrame.y = flick.contentY + (flick.height - imageFrame.height) / 2
+                    } else {
+                        imageFrame.rotation = pinch.previousAngle
+                        imageFrame.scale = pinch.previousScale
+                        imageFrame.x = pinch.previousCenter.x - imageFrame.width / 2
+                        imageFrame.y = pinch.previousCenter.y - imageFrame.height / 2
+                    }
+                }
+
+                MouseArea {
+                    id: dragArea
+                    hoverEnabled: true
+                    anchors.fill: parent
+                    drag.target: imageFrame
+                    onDoubleClicked: {
+                        imageFrame.state = "popup"
+                    }
+                    onWheel: {
+                        if (wheel.modifiers & Qt.ControlModifier) {
+                            imageFrame.rotation += wheel.angleDelta.y / 120 * 5;
+                            if (Math.abs(imageFrame.rotation) < 4)
+                                imageFrame.rotation = 0;
+                        } else {
+                            imageFrame.rotation += wheel.angleDelta.x / 120;
+                            if (Math.abs(imageFrame.rotation) < 0.6)
+                                imageFrame.rotation = 0;
+                            var scaleBefore = imageFrame.scale;
+                            imageFrame.scale += imageFrame.scale * wheel.angleDelta.y / 120 / 10;
+                        }
+                    }
+                }
             }
         }
 
@@ -61,7 +103,7 @@ ApplicationWindow {
             State {
                 name: "default"
                 ParentChange {
-                    target: pipelineBlock
+                    target: imageFrame
                     parent: window
                     x: 0
                     y: 0
@@ -72,7 +114,7 @@ ApplicationWindow {
             State {
                 name: "popup"
                 ParentChange {
-                    target: pipelineBlock
+                    target: imageFrame
                     parent: windowItem
                     x: 0
                     y: 0
@@ -87,7 +129,7 @@ ApplicationWindow {
         id: videoWindow
         width: 600
         height: 400
-        visible: pipelineBlock.state == "popup"
+        visible: imageFrame.state == "popup"
 
         Item {
             id: windowItem
@@ -95,7 +137,7 @@ ApplicationWindow {
         }
 
         onClosing: {
-            pipelineBlock.state = "default"
+            imageFrame.state = "default"
         }
 
     }
