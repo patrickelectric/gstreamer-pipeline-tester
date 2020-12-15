@@ -7,7 +7,7 @@ import Helper 1.0
 
 ApplicationWindow {
     id: window
-    title: "Gstreamer Pipline Test"
+    title: "Gstreamer Pipline Tester"
     visible: true
     height: 600
     width: 800

@@ -1,4 +1,4 @@
-project(gstreamer-pipeline-test)
+project(gstreamer-pipeline-tester)
 
 cmake_minimum_required(VERSION 3.12)
 
