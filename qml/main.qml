@@ -2,6 +2,7 @@ import QtQuick 2.7
 import QtQuick.Controls 2.3
 import QtMultimedia 5.8
 import QtQuick.Layouts 1.12
+import QtQuick.Window 2.2
 import Helper 1.0
 
 ApplicationWindow {
@@ -52,8 +53,51 @@ ApplicationWindow {
             anchors.fill: parent
             onClicked: {
                 print(`touch.`)
+                pipelineBlock.state = "popup"
             }
         }
+
+        states: [
+            State {
+                name: "default"
+                ParentChange {
+                    target: pipelineBlock
+                    parent: window
+                    x: 0
+                    y: 0
+                    width: window.width
+                    height: window.height / 5
+                }
+            },
+            State {
+                name: "popup"
+                ParentChange {
+                    target: pipelineBlock
+                    parent: windowItem
+                    x: 0
+                    y: 0
+                    width: videoWindow.width
+                    height: videoWindow.height
+                }
+            }
+        ]
+    }
+
+    Window {
+        id: videoWindow
+        width: 600
+        height: 400
+        visible: pipelineBlock.state == "popup"
+
+        Item {
+            id: windowItem
+            anchors.fill: parent
+        }
+
+        onClosing: {
+            pipelineBlock.state = "default"
+        }
+
     }
 
     Timer {
