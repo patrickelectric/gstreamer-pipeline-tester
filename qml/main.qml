@@ -42,59 +42,53 @@ ApplicationWindow {
 
     Item {
         id: imageFrame
-        width: parent.width
-        height: parent.height / 5
+        property var originalHeight: undefined
+        property var originalWidth: undefined
+
+        onScaleChanged: {
+            const oldWidth = width
+            const oldHeight = height
+            width = originalWidth * scale
+            height = originalHeight * scale
+            x = x + (oldWidth - width) / 2
+            y = y + (oldHeight - height) / 2
+        }
+
         Image {
             id: pipelineBlock
             fillMode: Image.PreserveAspectFit
             anchors.centerIn: parent
             antialiasing: true
-
-            PinchArea {
-                anchors.fill: parent
-                pinch.target: imageFrame
-                pinch.minimumRotation: -360
-                pinch.maximumRotation: 360
-                pinch.minimumScale: 0.1
-                pinch.maximumScale: 10
-                pinch.dragAxis: Pinch.XAndYAxis
-                onPinchStarted: setFrameColor();
-                property real zRestore: 0
-                onSmartZoom: {
-                    if (pinch.scale > 0) {
-                        imageFrame.rotation = 0;
-                        imageFrame.scale = Math.min(imageFrame.parent.width, imageFrame.parent.height) / Math.max(image.sourceSize.width, image.sourceSize.height) * 0.85
-                        imageFrame.x = flick.contentX + (flick.width - imageFrame.width) / 2
-                        imageFrame.y = flick.contentY + (flick.height - imageFrame.height) / 2
-                    } else {
-                        imageFrame.rotation = pinch.previousAngle
-                        imageFrame.scale = pinch.previousScale
-                        imageFrame.x = pinch.previousCenter.x - imageFrame.width / 2
-                        imageFrame.y = pinch.previousCenter.y - imageFrame.height / 2
-                    }
+            asynchronous: true
+            onStatusChanged: {
+                if (status != Image.Ready) {
+                    return
                 }
 
-                MouseArea {
-                    id: dragArea
-                    hoverEnabled: true
-                    anchors.fill: parent
-                    drag.target: imageFrame
-                    onDoubleClicked: {
-                        imageFrame.state = "popup"
-                    }
-                    onWheel: {
-                        if (wheel.modifiers & Qt.ControlModifier) {
-                            imageFrame.rotation += wheel.angleDelta.y / 120 * 5;
-                            if (Math.abs(imageFrame.rotation) < 4)
-                                imageFrame.rotation = 0;
-                        } else {
-                            imageFrame.rotation += wheel.angleDelta.x / 120;
-                            if (Math.abs(imageFrame.rotation) < 0.6)
-                                imageFrame.rotation = 0;
-                            var scaleBefore = imageFrame.scale;
-                            imageFrame.scale += imageFrame.scale * wheel.angleDelta.y / 120 / 10;
-                        }
-                    }
+                width = sourceSize.width
+                height = sourceSize.height
+                imageFrame.width = width
+                imageFrame.height = height
+                imageFrame.originalHeight = height
+                imageFrame.originalWidth = width
+            }
+
+            MouseArea {
+                id: dragArea
+                hoverEnabled: true
+                anchors.fill: pipelineBlock
+                drag.target: imageFrame
+                property var bigW: dragArea.width * imageFrame.scale
+                drag.minimumX: imageFrame.parent.width / 2 - imageFrame.width
+                drag.maximumX: imageFrame.parent.width / 2
+                drag.minimumY: imageFrame.parent.height / 2 - imageFrame.height
+                drag.maximumY: imageFrame.parent.height / 2
+                onDoubleClicked: {
+                    imageFrame.state = "popup"
+                }
+                onWheel: {
+                    var scaleBefore = imageFrame.scale;
+                    imageFrame.scale += imageFrame.scale * wheel.angleDelta.y / 120 / 10;
                 }
             }
         }
