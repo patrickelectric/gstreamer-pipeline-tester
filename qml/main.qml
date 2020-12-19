@@ -22,7 +22,7 @@ ApplicationWindow {
             autoPlay: true
             fillMode: VideoOutput.Stretch
             onStatusChanged: {
-                print(`status: ${status}`)
+                print(`status: ${status}, error: ${error} [${errorString}]`)
             }
         }
 
