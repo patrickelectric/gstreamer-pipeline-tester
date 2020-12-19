@@ -20,7 +20,7 @@ Helper::Helper()
     auto folderName = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
     _temporaryPath = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).absoluteFilePath(folderName);
     auto dir = QDir(_temporaryPath);
-    auto result = dir.exists() || dir.mkdir(".");
+    auto result = dir.exists() || dir.mkpath(".");
     if (!result) {
         qWarning() << "Failed to create for dot files:" << _temporaryPath;
         return;
