@@ -1,7 +1,5 @@
 include(FindPackageHandleStandardArgs)
 
-message(potato)
-
 set(GRAPHVIZ_SEARCH_PATHS
   /usr
   /usr/local
