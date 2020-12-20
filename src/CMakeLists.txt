@@ -10,7 +10,5 @@ include_directories(
     ${GRAPHVIZ_INCLUDE_DIR}
 )
 
-message(${GRAPHVIZ_INCLUDE_DIR})
-
 add_executable(${CMAKE_PROJECT_NAME} ${SRCS} ${RESOURCES})
 target_link_libraries(${CMAKE_PROJECT_NAME} Qt5::Core Qt5::Qml Qt5::Widgets cgraph gvc)
