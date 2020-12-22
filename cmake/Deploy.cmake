@@ -48,6 +48,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 				--executable=${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}
 				--icon-file=${CMAKE_SOURCE_DIR}/qml/images/${CMAKE_PROJECT_NAME}.png
 				--plugin qt
-				--output appimage
+		COMMAND ${LINUXDEPLOY_EXECUTABLE}
+			--appdir=${CMAKE_BINARY_DIR}/deploy
+			--output appimage
 	)
 endif()
