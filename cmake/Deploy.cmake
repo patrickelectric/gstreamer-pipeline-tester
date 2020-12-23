@@ -20,8 +20,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
 	download_tool(linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage)
 	download_tool(linuxdeploy-plugin-qt-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage)
+	download_tool(linuxdeploy-plugin-gstreamer.sh https://raw.githubusercontent.com/patrickelectric/linuxdeploy-plugin-gstreamer/fix_no_exist/linuxdeploy-plugin-gstreamer.sh)
 	find_program(LINUXDEPLOY_EXECUTABLE ${TOOLS_FOLDER}/linuxdeploy-x86_64.AppImage)
 	find_program(LINUXDEPLOY_PLUGIN_QT_EXECUTABLE ${TOOLS_FOLDER}/linuxdeploy-plugin-qt-x86_64.AppImage)
+	find_program(LINUXDEPLOY_PLUGIN_GSTREAMER_EXECUTABLE ${TOOLS_FOLDER}/linuxdeploy-plugin-gstreamer.sh)
 
 	file(WRITE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.desktop
 		"[Desktop Entry]\n"
@@ -36,18 +38,29 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		"Keywords=computer;\n"
 	)
 
+	find_package(AppImageDependencies REQUIRED)
+
 	add_custom_target(deploy DEPENDS ${CMAKE_PROJECT_NAME})
 	add_custom_command(
 		TARGET deploy
 		COMMAND ${CMAKE_COMMAND} -E echo "Running linux deployment"
 		COMMAND ${CMAKE_COMMAND} -E make_directory deploy
-		COMMAND ${CMAKE_COMMAND} -E env QML_SOURCES_PATHS=${CMAKE_SOURCE_DIR}/qml
+		# The first step creates populates de ploy folder with the necessary Qt dependencies
+		 COMMAND ${CMAKE_COMMAND} -E env GSTREAMER_PLUGINS_DIR=${GST_DLL_DIR}
 			${LINUXDEPLOY_EXECUTABLE}
 				--desktop-file=${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.desktop
 				--appdir=${CMAKE_BINARY_DIR}/deploy
 				--executable=${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}
 				--icon-file=${CMAKE_SOURCE_DIR}/qml/images/${CMAKE_PROJECT_NAME}.png
-				--plugin qt
-				--output appimage
+				--plugin gstreamer
+		COMMAND ${CMAKE_COMMAND} -E env QML_SOURCES_PATHS=${CMAKE_SOURCE_DIR}/qml
+			${LINUXDEPLOY_PLUGIN_QT_EXECUTABLE}
+				--appdir=${CMAKE_BINARY_DIR}/deploy
+				--extra-plugin=multimedia
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${GRAPHVIZ_DLL_DIR} ${CMAKE_BINARY_DIR}/deploy${GRAPHVIZ_DLL_DIR}
+		COMMAND ${CMAKE_COMMAND} -E rm -Rf ${CMAKE_BINARY_DIR}/deploy${GRAPHVIZ_DLL_DIR}/{lua,ocaml,perl,python3,R,sharp,tcl}
+		COMMAND ${LINUXDEPLOY_EXECUTABLE}
+			--appdir=${CMAKE_BINARY_DIR}/deploy
+			--output appimage
 	)
 endif()
