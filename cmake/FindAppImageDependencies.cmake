@@ -6,7 +6,8 @@ set(DLL_SEARCH_PATHS
 )
 
 find_path(GST_DLL_DIR
-    NAMES libgstcoreelements.so{.*}
+    NAMES
+        libgstcoreelements.so
     PATHS
         ${DLL_SEARCH_PATHS}
     PATH_SUFFIXES
@@ -14,13 +15,16 @@ find_path(GST_DLL_DIR
 )
 
 find_path(GRAPHVIZ_DLL_DIR
-    NAMES libgvplugin_core.so{.*}
+    NAMES
+        libgvplugin_core.so
+        libgvplugin_core.so.6
     PATHS
         ${DLL_SEARCH_PATHS}
     PATH_SUFFIXES
         graphviz
 )
 
-find_package_handle_standard_args(AppImageDependencies DEFAULT_MSG GST_DLL_DIR GRAPHVIZ_DLL_DIR)
+find_package_handle_standard_args(AppImageDependencies DEFAULT_MSG GST_DLL_DIR)
+find_package_handle_standard_args(AppImageDependencies DEFAULT_MSG GRAPHVIZ_DLL_DIR)
 
 mark_as_advanced(GST_DLL_DIR GRAPHVIZ_DLL_DIR)
