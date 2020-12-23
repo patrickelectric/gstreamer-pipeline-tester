@@ -16,6 +16,7 @@ find_package(Qt5 ${QT_MIN_VERSION} REQUIRED NO_MODULE COMPONENTS
     Qml
     Quick
     QuickControls2
+    Svg
     Widgets
 )
 
