@@ -20,7 +20,6 @@ jobs:
       with:
         version: '5.15.1'
         target: 'desktop'
-        modules: qtcharts
 
     - name: Install dependencies
       if: runner.os == 'Linux'
@@ -31,8 +30,11 @@ jobs:
 
     - name: Build
       run: |
-         cmake -B build && cmake --build build --target deploy
-         mv build/${{ matrix.DEPLOY_PATH }} .
+        unset QT_PLUGIN_PATH
+        unset LD_LIBRARY_PATH
+        unset QTDIR
+        cmake -B build && cmake --build build --target deploy
+        mv build/${{ matrix.DEPLOY_PATH }} .
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
