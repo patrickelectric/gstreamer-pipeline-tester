@@ -1,0 +1,42 @@
+name: Build & Deploy
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+        - os: ubuntu-latest
+          DEPLOY_PATH: gstreamer-pipeline-tester-*.AppImage
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '5.15.1'
+        target: 'desktop'
+
+    - name: Install dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt update
+        sudo apt install graphviz libghc-graphviz-dev libgraphviz-dev
+        sudo apt install gstreamer1.0-plugins-*
+
+    - name: Build
+      run: |
+        export QTDIR=$Qt5_DIR
+        export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
+        cmake -B build && cmake --build build --target deploy
+        mv build/${{ matrix.DEPLOY_PATH }} .
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: gstreamer-pipeline-tester-${{ matrix.os }}
+        path: ${{ matrix.DEPLOY_PATH }}
