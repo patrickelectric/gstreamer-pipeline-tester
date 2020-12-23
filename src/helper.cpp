@@ -33,7 +33,7 @@ Helper::Helper()
         auto dir = QDir(path);
         auto files = dir.entryList({"*.dot"}, QDir::Files);
 
-        auto latestFile = std::tuple<QString, QDateTime>({}, QDateTime::fromMSecsSinceEpoch(0));
+        auto latestFile = std::tuple<QString, QDateTime>{QString(), QDateTime::fromMSecsSinceEpoch(0)};
         for (auto file : files) {
             auto fileInfo = QFileInfo(dir.absoluteFilePath(file));
             auto time = fileInfo.lastModified();
