@@ -38,13 +38,15 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		"Keywords=computer;\n"
 	)
 
+	find_package(AppImageDependencies REQUIRED)
+
 	add_custom_target(deploy DEPENDS ${CMAKE_PROJECT_NAME})
 	add_custom_command(
 		TARGET deploy
 		COMMAND ${CMAKE_COMMAND} -E echo "Running linux deployment"
 		COMMAND ${CMAKE_COMMAND} -E make_directory deploy
 		# The first step creates populates de ploy folder with the necessary Qt dependencies
-		 COMMAND ${CMAKE_COMMAND} -E env GSTREAMER_PLUGINS_DIR=/usr/lib/gstreamer-1.0
+		 COMMAND ${CMAKE_COMMAND} -E env GSTREAMER_PLUGINS_DIR=${GST_DLL_DIR}
 			${LINUXDEPLOY_EXECUTABLE}
 				--desktop-file=${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.desktop
 				--appdir=${CMAKE_BINARY_DIR}/deploy
@@ -55,8 +57,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 			${LINUXDEPLOY_PLUGIN_QT_EXECUTABLE}
 				--appdir=${CMAKE_BINARY_DIR}/deploy
 				--extra-plugin=multimedia
-		COMMAND ${CMAKE_COMMAND} -E copy_directory /usr/lib/graphviz ${CMAKE_BINARY_DIR}/deploy/usr/lib/graphviz
-		COMMAND ${CMAKE_COMMAND} -E rm -Rf ${CMAKE_BINARY_DIR}/deploy/usr/lib/graphviz/{lua,ocaml,perl,python3,R,sharp,tcl}
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${GRAPHVIZ_DLL_DIR} ${CMAKE_BINARY_DIR}/deploy${GRAPHVIZ_DLL_DIR}
+		COMMAND ${CMAKE_COMMAND} -E rm -Rf ${CMAKE_BINARY_DIR}/deploy${GRAPHVIZ_DLL_DIR}/{lua,ocaml,perl,python3,R,sharp,tcl}
 		COMMAND ${LINUXDEPLOY_EXECUTABLE}
 			--appdir=${CMAKE_BINARY_DIR}/deploy
 			--output appimage
