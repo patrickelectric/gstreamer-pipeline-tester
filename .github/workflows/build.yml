@@ -24,15 +24,15 @@ jobs:
     - name: Install dependencies
       if: runner.os == 'Linux'
       run: |
+        echo "QT_PLUGIN_PATH: $QT_PLUGIN_PATH"
+        echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+        echo "QTDIR: $QTDIR"
         sudo apt update
         sudo apt install graphviz libghc-graphviz-dev libgraphviz-dev
         sudo apt install gstreamer1.0-plugins-*
 
     - name: Build
       run: |
-        unset QT_PLUGIN_PATH
-        unset LD_LIBRARY_PATH
-        unset QTDIR
         cmake -B build && cmake --build build --target deploy
         mv build/${{ matrix.DEPLOY_PATH }} .
 
